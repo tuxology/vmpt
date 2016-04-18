@@ -44,7 +44,7 @@
 static int usage(const char *name)
 {
     fprintf(stderr,
-            "%s: [<options>] <ptfile>.\n",
+            "usage: %s <ptfile>\n",
             name);
     return -1;
 }
@@ -59,15 +59,6 @@ static int unknown_option_error(const char *arg, const char *name)
 {
     fprintf(stderr, "%s: unknown option: %s.\n", name, arg);
     return -1;
-}
-
-static int help(const char *name)
-{
-    fprintf(stderr,
-            "usage: %s <ptfile>\n\n",
-            name);
-
-    return 0;
 }
 
 static int parse_range(char *arg, uint64_t *begin, uint64_t *end)
