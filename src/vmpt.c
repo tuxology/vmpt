@@ -241,13 +241,9 @@ static int dump_bundle(uint64_t offset, const struct pt_packet *packet,
         case ppt_pip:
             if (got_pip == 0)
             {
-                fprintf(fp, "\t{\n");
-                fprintf(fp, "\t\t\"packet\": [\n");
-                fprintf(fp, "\t\t\t{\n\t\t\t\t\"id\": \"PIP\","
-                        "\n\t\t\t\t\"payload\": %"PRIx64","
-                        "\n\t\t\t\t\"nr\": %d\n\t\t\t},\n",
-                        packet->payload.pip.cr3, packet->payload.pip.nr);
-
+                fprintf(fp, "\t<bundle>\n");
+                fprintf(fp, "\t\t<pip> %"PRIx64" </pip>\n", packet->payload.pip.cr3);
+                fprintf(fp, "\t\t<nr> %d </nr>\n", packet->payload.pip.nr);
                 got_pip = 1;
             }
             return 0;
@@ -267,9 +263,7 @@ static int dump_bundle(uint64_t offset, const struct pt_packet *packet,
         case ppt_vmcs:
             if ((got_pad == 1) && (got_pip == 1))
             {
-                fprintf(fp, "\t\t\t{\n\t\t\t\t\"id\": \"VMCS\","
-                        "\n\t\t\t\t\"payload\": %"PRIx64"\n\t\t\t},\n", 
-                        packet->payload.vmcs.base);
+                fprintf(fp, "\t\t<vmcs> %"PRIx64" </vmcs>\n", packet->payload.vmcs.base);
                 got_vmcs = 1;
             }
             return 0;
@@ -277,12 +271,15 @@ static int dump_bundle(uint64_t offset, const struct pt_packet *packet,
         case ppt_tsc:
             if ((got_pip == 1) && (got_vmcs == 1))
             {
-                fprintf(fp, "\t\t\t{\n\t\t\t\t\"id\": \"TSC\","
-                        "\n\t\t\t\t\"payload\": %"PRIx64"\n\t\t\t}\n", 
-                        packet->payload.tsc.tsc);
+                //fprintf(fp, "\t\t<tsc> %"PRIx64" </tsc>\n", packet->payload.tsc.tsc);
+
+                // Only for demo!!
+                //long long adjusted = ((long long) packet->payload.tsc.tsc) - 899000000000000;
+                //fprintf(fp, "\t\t<tsc> %lld </tsc>\n", adjusted);
+                fprintf(fp, "\t\t<tsc> %lld </tsc>\n", packet->payload.tsc.tsc);
                 got_pip = 0;
                 got_vmcs = 0;
-                fprintf(fp, "\t\t]\n\t},\n");
+                fprintf(fp, "\t</bundle>\n");
             }
             return 0;
     }
@@ -391,10 +388,10 @@ int main(int argc, char *argv[])
     if (errcode < 0)
         return errcode;
 
-    fp = fopen("bundles.json", "w+");
-    fprintf(fp, "\"bundle\": [\n");
+    fp = fopen("bundles.xml", "w+");
+    fprintf(fp, "<vmpt>\n");
     errcode = dump(&config);
-    fprintf(fp, "]\n");
+    fprintf(fp, "</vmpt>\n");
     fclose(fp);
 
     free(config.begin);
